@@ -186,6 +186,9 @@ export function ChatWindow(props: {
   const chat = useChat({
     api: props.endpoint,
     onResponse(response) {
+      //put save code here
+
+      console.log(response);
       const sourcesHeader = response.headers.get("x-sources");
       const sources = sourcesHeader
         ? JSON.parse(Buffer.from(sourcesHeader, "base64").toString("utf8"))
@@ -199,7 +202,17 @@ export function ChatWindow(props: {
         });
       }
     },
-    streamMode: "text",
+    onFinish(message) {
+      console.log("saving", message.content);
+      fetch("/api/chat/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: message.content }),
+      });
+    },
+    streamMode: "stream-data",
     onError: (e) =>
       toast.error(`Error while processing your request`, {
         description: e.message,
@@ -310,46 +323,7 @@ export function ChatWindow(props: {
           onSubmit={sendMessage}
           loading={chat.isLoading || intermediateStepsLoading}
           placeholder={props.placeholder ?? "What's it like to be a pirate?"}
-        >
-          {props.showIngestForm && (
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="pl-2 pr-3 -ml-2"
-                  disabled={chat.messages.length !== 0}
-                >
-                  <Paperclip className="size-4" />
-                  <span>Upload document</span>
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Upload document</DialogTitle>
-                  <DialogDescription>
-                    Upload a document to use for the chat.
-                  </DialogDescription>
-                </DialogHeader>
-                <UploadDocumentsForm />
-              </DialogContent>
-            </Dialog>
-          )}
-
-          {props.showIntermediateStepsToggle && (
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="show_intermediate_steps"
-                name="show_intermediate_steps"
-                checked={showIntermediateSteps}
-                disabled={chat.isLoading || intermediateStepsLoading}
-                onCheckedChange={(e) => setShowIntermediateSteps(!!e)}
-              />
-              <label htmlFor="show_intermediate_steps" className="text-sm">
-                Show intermediate steps
-              </label>
-            </div>
-          )}
-        </ChatInput>
+        ></ChatInput>
       }
     />
   );
