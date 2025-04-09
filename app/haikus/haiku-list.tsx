@@ -1,15 +1,9 @@
 import { PaginationButton } from "./pagination-button";
 
 async function getHaikus(page = 1, limit = 5) {
-  // Use absolute URL in production, relative URL in development
-  const baseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : "";
-
+  const baseUrl = process.env.VERCEL_URL;
   const res = await fetch(
-    `${baseUrl}/api/chat/save?page=${page}&limit=${limit}`,
+    `https://langchain-starter-xi-eight.vercel.app/api/chat/save?page=${page}&limit=${limit}`,
     {
       cache: "no-store",
     },
